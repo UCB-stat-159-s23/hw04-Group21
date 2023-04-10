@@ -3,14 +3,14 @@ from ligotools import readligo as rl
 import pytest
 import json
 
-fnjson = "BBH_events_v3.json"
+fnjson = "data/BBH_events_v3.json"
 events = json.load(open(fnjson,"r"))
 eventname  = 'GW150914' 
 event = events[eventname]
 fn_H1 = event['fn_H1']          
 fn_L1 = event['fn_L1']  
 
-strain, time, chan_dict = rl.loaddata("L-L1_LOSC_4_V2-1126259446-32.hdf5", 'L1')
+strain, time, chan_dict = rl.loaddata("data/L-L1_LOSC_4_V2-1126259446-32.hdf5", 'L1')
 
 def test_loaddata():
 	"""
