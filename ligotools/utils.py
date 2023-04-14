@@ -44,7 +44,7 @@ def reqshift(data,fshift=100,sample_rate=4096):
 
 
 # function to plot PSD of detectors
-def plot_psd(template_p, template_c, time, strain_L1, strain_H1, fband,psd_H1, psd_L1, fs=4096, template_offset=16, eventname = 'GW150914'):
+def plot_psd(template_p, template_c, time, strain_L1, strain_H1, fband, psd_H1, psd_L1, fs=4096, template_offset=16, eventname = 'GW150914'):
 	# Calculate normalization
 	normalization = np.sqrt((fband[1]-fband[0])/(fs/2))
     # -- To calculate the PSD of the data, choose an overlap and a window (common to all detectors)
