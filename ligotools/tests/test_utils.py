@@ -20,7 +20,7 @@ fn_H1 = event['fn_H1']              # File name for H1 data
 fn_L1 = event['fn_L1']              # File name for L1 data
 fn_template = event['fn_template']  # File name for template waveform
 fs = event['fs']                    # Set sampling rate
-tevent = event['tevent']            # Set approximate event GPS time
+tevent = 1126259462.44         # Set approximate event GPS time
 fband = event['fband']              # frequency band for bandpassing signal
 
 strain_H1, time_H1, chan_dict_H1 = rl.loaddata('data/'+fn_H1, 'H1')
@@ -38,14 +38,7 @@ Pxx_L1, freqs = mlab.psd(strain_L1, Fs = fs, NFFT = NFFT)
 psd_H1 = interp1d(freqs, Pxx_H1)
 psd_L1 = interp1d(freqs, Pxx_L1)
 
-sigmasq = 1*(template_fft * template_fft.conjugate() / power_vec).sum() * df
-sigma = np.sqrt(np.abs(sigmasq))
-SNR_complex = optimal_time/sigma
 
-# shift the SNR vector by the template length so that the peak is at the END of the template
-peaksample = int(data.size / 2)  # location of peak in the template
-SNR_complex = np.roll(SNR_complex,peaksample)
-SNR = abs(SNR_complex)
 
 f_template = h5py.File('data/'+fn_template, "r")
 template_p, template_c = f_template["template"][...]
@@ -61,6 +54,40 @@ template_offset = 16
 template = (template_p + template_c*1.j)
 dwindow = signal.tukey(template.size, alpha=1./8)
 template_fft = np.fft.rfft(np.random.randn(4096))
+# to remove effects at the beginning and end of the data stretch, window the data
+# https://en.wikipedia.org/wiki/Window_function#Tukey_window
+try:   dwindow = signal.tukey(template.size, alpha=1./8)  # Tukey window preferred, but requires recent scipy version 
+except: dwindow = signal.blackman(template.size)          # Blackman window OK if Tukey is not available
+
+# prepare the template fft.
+template_fft = np.fft.fft(template*dwindow) / fs
+
+datafreq = np.fft.fftfreq(template.size)*fs
+df = np.abs(datafreq[1] - datafreq[0])
+
+power_vec = np.interp(np.abs(datafreq), freqs, Pxx_H1)
+sigmasq = 1*(template_fft * template_fft.conjugate() / power_vec).sum() * df
+sigma = np.sqrt(np.abs(sigmasq))
+
+optimal = np.random.rand(131072) * template_fft.conjugate() / power_vec
+optimal_time = 2*np.fft.ifft(optimal)*fs
+
+data_psd = np.random.rand(8193)
+strain_whitenbp = np.random.rand(131072)
+template_match = np.random.rand(131072)
+
+
+SNR_complex = optimal_time/sigma
+
+# shift the SNR vector by the template length so that the peak is at the END of the template
+peaksample = int(data.size / 2)  # location of peak in the template
+SNR_complex = np.roll(SNR_complex,peaksample)
+SNR = abs(SNR_complex)
+indmax = np.argmax(SNR)
+
+timemax = time[indmax]
+SNRmax = SNR[indmax]
+d_eff = sigma / SNRmax
 
 # tests
 def test_whiten():
@@ -91,10 +118,10 @@ def test_plot_psd():
     Check to make sure the plotting function runs and creates accurate x axis label.
     '''
     timemax = 1126259462.432373
-    pcolor = 'r'
-    det = 'H1'
+    det = 'L1'
     eventname = 'GW150914'
-    plottype = 'png'
+    time = time_H1
+    tevent=5
 
-    figure = ul.psd_plot(time, timemax, SNR, data_psd, pcolor, det, eventname, fs, plottype, tevent, strain_whitenbp,template_match,template_fft, datafreq, d_eff, freqs)
-    assert "frequency" in str(figure.ax.xaxis.get_label())
+    figure = ul.psd_plot(time, timemax, SNR, data_psd, det, eventname, fs, tevent, strain_whitenbp,template_match,template_fft, datafreq, d_eff, freqs)
+    assert "frequency" in str(figure.axes)
