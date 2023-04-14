@@ -38,6 +38,14 @@ Pxx_L1, freqs = mlab.psd(strain_L1, Fs = fs, NFFT = NFFT)
 psd_H1 = interp1d(freqs, Pxx_H1)
 psd_L1 = interp1d(freqs, Pxx_L1)
 
+sigmasq = 1*(template_fft * template_fft.conjugate() / power_vec).sum() * df
+sigma = np.sqrt(np.abs(sigmasq))
+SNR_complex = optimal_time/sigma
+
+# shift the SNR vector by the template length so that the peak is at the END of the template
+peaksample = int(data.size / 2)  # location of peak in the template
+SNR_complex = np.roll(SNR_complex,peaksample)
+SNR = abs(SNR_complex)
 
 f_template = h5py.File('data/'+fn_template, "r")
 template_p, template_c = f_template["template"][...]
@@ -48,8 +56,11 @@ t_a2 = f_template["/meta"].attrs['a2']
 t_approx = f_template["/meta"].attrs['approx']
 f_template.close()
 # the template extends to roughly 16s, zero-padded to the 32s data length. The merger will be roughly 16s in.
-template_offset = 16.
+template_offset = 16
 
+template = (template_p + template_c*1.j)
+dwindow = signal.tukey(template.size, alpha=1./8)
+template_fft = np.fft.rfft(np.random.randn(4096))
 
 # tests
 def test_whiten():
@@ -79,5 +90,11 @@ def test_plot_psd():
     '''
     Check to make sure the plotting function runs and creates accurate x axis label.
     '''
-    figure = ul.plot_psd(template_p, template_c, time, strain_L1, strain_H1, fband, psd_H1, psd_L1)
+    timemax = 1126259462.432373
+    pcolor = 'r'
+    det = 'H1'
+    eventname = 'GW150914'
+    plottype = 'png'
+
+    figure = ul.psd_plot(time, timemax, SNR, data_psd, pcolor, det, eventname, fs, plottype, tevent, strain_whitenbp,template_match,template_fft, datafreq, d_eff, freqs)
     assert "frequency" in str(figure.ax.xaxis.get_label())

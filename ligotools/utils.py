@@ -103,4 +103,4 @@ def psd_plot(time, timemax, SNR,data_psd, pcolor, det, eventname, fs, plottype, 
     plt.legend(loc='upper left')
     plt.title(det+' ASD and template around event')
     plt.savefig('figures/'+eventname+"_"+det+"_matchfreq."+plottype)
-	return plt.gcf()
+    return plt.gcf()
