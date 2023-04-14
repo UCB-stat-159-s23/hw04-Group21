@@ -5,7 +5,7 @@ SHELL = /bin/bash
 
 ## create_environment : Create and configure environment
 .PHONY : envs
-env : 
+env: 
 	source /srv/conda/etc/profile.d/conda.sh
 	conda env create -f environment.yml
 	conda activate ligo
