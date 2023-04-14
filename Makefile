@@ -12,7 +12,6 @@ envs :
 	conda install ipykernel
 	python -m ipykernel install --user --name makeLigo --display-name "IPython - ligo"
 
-
 ## html : Build the Jupyterbook
 .PHONY : html
 html:
