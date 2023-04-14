@@ -38,6 +38,19 @@ Pxx_L1, freqs = mlab.psd(strain_L1, Fs = fs, NFFT = NFFT)
 psd_H1 = interp1d(freqs, Pxx_H1)
 psd_L1 = interp1d(freqs, Pxx_L1)
 
+
+f_template = h5py.File('data/'+fn_template, "r")
+template_p, template_c = f_template["template"][...]
+t_m1 = f_template["/meta"].attrs['m1']
+t_m2 = f_template["/meta"].attrs['m2']
+t_a1 = f_template["/meta"].attrs['a1']
+t_a2 = f_template["/meta"].attrs['a2']
+t_approx = f_template["/meta"].attrs['approx']
+f_template.close()
+# the template extends to roughly 16s, zero-padded to the 32s data length. The merger will be roughly 16s in.
+template_offset = 16.
+
+
 # tests
 def test_whiten():
     ''' 
@@ -66,4 +79,5 @@ def test_plot_psd():
     '''
     Check the plotting function.
     '''
-    assert type(eventname) == str
+    # plot_psd(template_p, template_c, time, strain_L1, strain_H1, fband,psd_H1, psd_L1, fs=4096, template_offset=16, eventname = 'GW150914'):
+    ul.plot_psd(template_p, template_c, time, strain_L1, strain_H1, fband, psd_H1, psd_L1)
