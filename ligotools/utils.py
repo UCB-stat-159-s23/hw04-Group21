@@ -44,11 +44,11 @@ def reqshift(data,fshift=100,sample_rate=4096):
 
 
 # function to plot PSD of detectors
-def psd_plot(time, timemax, SNR,data_psd, pcolor, det, eventname, fs, plottype, tevent, strain_whitenbp,template_match,template_fft, datafreq, d_eff, freqs):
+def psd_plot(time, timemax, SNR,data_psd, det, eventname, fs, tevent, strain_whitenbp,template_match,template_fft, datafreq, d_eff, freqs,plottype ='png', color='r'):
     
     plt.figure(figsize=(10,8))
     plt.subplot(2,1,1)
-    plt.plot(time-timemax, SNR, pcolor,label=det+' SNR(t)')
+    plt.plot(time-timemax, SNR, color,label=det+' SNR(t)')
     plt.grid('on')
     plt.ylabel('SNR')
     plt.xlabel('Time since {0:.4f}'.format(timemax))
@@ -57,7 +57,7 @@ def psd_plot(time, timemax, SNR,data_psd, pcolor, det, eventname, fs, plottype, 
 
     # zoom in
     plt.subplot(2,1,2)
-    plt.plot(time-timemax, SNR, pcolor,label=det+' SNR(t)')
+    plt.plot(time-timemax, SNR, color,label=det+' SNR(t)')
     plt.grid('on')
     plt.ylabel('SNR')
     plt.xlim([-0.15,0.05])
@@ -68,7 +68,7 @@ def psd_plot(time, timemax, SNR,data_psd, pcolor, det, eventname, fs, plottype, 
 
     plt.figure(figsize=(10,8))
     plt.subplot(2,1,1)
-    plt.plot(time-tevent,strain_whitenbp,pcolor,label=det+' whitened h(t)')
+    plt.plot(time-tevent,strain_whitenbp,color,label=det+' whitened h(t)')
     plt.plot(time-tevent,template_match,'k',label='Template(t)')
     plt.ylim([-10,10])
     plt.xlim([-0.15,0.05])
@@ -79,7 +79,7 @@ def psd_plot(time, timemax, SNR,data_psd, pcolor, det, eventname, fs, plottype, 
     plt.title(det+' whitened data around event')
 
     plt.subplot(2,1,2)
-    plt.plot(time-tevent,strain_whitenbp-template_match,pcolor,label=det+' resid')
+    plt.plot(time-tevent,strain_whitenbp-template_match,color,label=det+' resid')
     plt.ylim([-10,10])
     plt.xlim([-0.15,0.05])
     plt.grid('on')
@@ -87,14 +87,14 @@ def psd_plot(time, timemax, SNR,data_psd, pcolor, det, eventname, fs, plottype, 
     plt.ylabel('whitened strain (units of noise stdev)')
     plt.legend(loc='upper left')
     plt.title(det+' Residual whitened data after subtracting template around event')
-    plt.savefig('figures/'+eventname+"_"+det+"_matchtime."+plottype)
+    # plt.savefig('figures/'+eventname+"_"+det+"_matchtime."+plottype)
 
     # -- Display PSD and template
     # must multiply by sqrt(f) to plot template fft on top of ASD:
     plt.figure(figsize=(10,6))
     template_f = np.absolute(template_fft)*np.sqrt(np.abs(datafreq)) / d_eff
     plt.loglog(datafreq, template_f, 'k', label='template(f)*sqrt(f)')
-    plt.loglog(freqs, np.sqrt(data_psd),pcolor, label=det+' ASD')
+    plt.loglog(freqs, np.sqrt(data_psd),color, label=det+' ASD')
     plt.xlim(20, fs/2)
     plt.ylim(1e-24, 1e-20)
     plt.grid()
@@ -102,5 +102,5 @@ def psd_plot(time, timemax, SNR,data_psd, pcolor, det, eventname, fs, plottype, 
     plt.ylabel('strain noise ASD (strain/rtHz), template h(f)*rt(f)')
     plt.legend(loc='upper left')
     plt.title(det+' ASD and template around event')
-    plt.savefig('figures/'+eventname+"_"+det+"_matchfreq."+plottype)
+    # plt.savefig('figures/'+eventname+"_"+det+"_matchfreq."+plottype)
     return plt.gcf()
