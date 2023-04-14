@@ -77,8 +77,7 @@ def test_reqshift():
 
 def test_plot_psd():
     '''
-    Check to make sure the plotting function runs and produces a figure.
+    Check to make sure the plotting function runs and creates accurate x axis label.
     '''
-
     figure = ul.plot_psd(template_p, template_c, time, strain_L1, strain_H1, fband, psd_H1, psd_L1)
     assert "frequency" in str(figure.ax.xaxis.get_label())
