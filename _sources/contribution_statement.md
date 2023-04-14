@@ -4,4 +4,4 @@ James Xu
 
 Joselin Hartanto: JupyterBook, GitHub Pages and Actions
 
-Hannah Cooper:
+Hannah C Create tests for utilsooper:
